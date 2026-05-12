@@ -18,3 +18,14 @@ Set up GitHub repository, created Microsoft Fabric workspace and Lakehouse with 
 | olist_order_reviews | Customer review scores and timestamps |
 | olist_geolocation | Zip code to city/state/coordinates mapping |
 | product_category_name_translation | Portuguese to English category translation |
+
+
+## Business Questions
+
+This project answers five business questions a commercial analyst would face in any sales or operations role:
+
+1. **Revenue Trend** — What is the monthly revenue and order volume trend over time?
+2. **Category Performance** — Which product categories drive the most revenue?
+3. **Seller Delivery Performance** — Which sellers have the best and worst delivery performance?
+4. **Satisfaction Driver** — What is the relationship between delivery delay and customer review score?
+5. **Pareto Analysis** — Which 20% of sellers drive 80% of revenue, and what distinguishes them from the rest?
