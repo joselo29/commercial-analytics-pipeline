@@ -1,18 +1,50 @@
-# commercial-analytics-pipeline
-An end-to-end commercial analytics project: raw data to business insights using SQL, Microsoft Fabric, and Power BI.
+# Commercial Analytics Pipeline
+### Olist Brazilian E-Commerce · Microsoft Fabric · Power BI
 
-This project demonstrates commercial analytics skills using a real Brazilian e-commerce dataset (Olist, ~100,000 orders). Raw CSV data is loaded into Microsoft Fabric using a Medallion architecture (Bronze/Silver/Gold layers), transformed using SQL, and visualised in a Power BI dashboard answering five business questions relevant to any sales or operations role.
+![Dashboard](dashboard.png)
 
+---
+
+## Overview
+
+End-to-end analytics pipeline built on **Microsoft Fabric**, transforming raw e-commerce transaction data into a structured Gold layer and an interactive Power BI dashboard. The project covers the full analytics engineering workflow: data ingestion, multi-stage transformation, semantic modelling, and business intelligence delivery.
+
+**Dataset:** [Olist Brazilian E-Commerce](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) — 100K+ orders placed between 2016 and 2018 across multiple marketplaces in Brazil.
+
+---
+
+## Architecture — Medallion Pattern
+
+```
+Raw CSV files
+     │
+     ▼
+ BRONZE layer        — Ingested as-is into Fabric Lakehouse Delta tables
+     │
+     ▼
+ SILVER layer        — Cleaned, typed, joined, and filtered to delivered orders only
+     │
+     ▼
+  GOLD layer         — Aggregated, business-ready tables (one per business question)
+     │
+     ▼
+Power BI dashboard   — Direct Lake semantic model, no data duplication
+```
+
+Each layer is materialised as Delta tables in the Fabric Lakehouse, with transformation logic written in Spark SQL notebooks.
+
+---
 
 ## Data Sources
-**Dataset:** Brazilian E-Commerce Public Dataset by Olist  
-**Source:** Kaggle (517,000+ downloads)  
-**Tables:** 9 relational tables, ~100,000 orders  
+
+**Dataset:** Brazilian E-Commerce Public Dataset by Olist
+**Source:** Kaggle (517,000+ downloads)
+**Tables:** 9 relational tables, ~100,000 orders
 
 | Table | Description |
 |---|---|
-| olist_orders | Central table , one row per order, tracks full delivery journey |
-| olist_order_items | One row per item within an order , price and freight per item |
+| olist_orders | Central table — one row per order, tracks full delivery journey |
+| olist_order_items | One row per item within an order, price and freight per item |
 | olist_customers | Customer location and unique identity |
 | olist_sellers | Seller location information |
 | olist_products | Product categories and physical dimensions |
@@ -21,42 +53,92 @@ This project demonstrates commercial analytics skills using a real Brazilian e-c
 | olist_geolocation | Zip code to city/state/coordinates mapping |
 | product_category_name_translation | Portuguese to English category translation |
 
-
-## Business Questions
-This project answers five business questions a commercial analyst would face in any sales or operations role:
-
-1. **Revenue Trend** : What is the monthly revenue and order volume trend over time?
-2. **Category Performance** : Which product categories drive the most revenue?
-3. **Seller Delivery Performance** : Which sellers have the best and worst delivery performance?
-4. **Satisfaction Driver** : What is the relationship between delivery delay and customer review score?
-5. **Pareto Analysis** : Which 20% of sellers drive 80% of revenue, and what distinguishes them from the rest?
-
+---
 
 ## Tech Stack
-| Tool | Purpose |
-|---|---|
-| Microsoft Fabric | Cloud data platform : OneLake storage and Lakehouse SQL endpoint |
-| DataGrip (JetBrains) | SQL development and query execution |
-| Power BI | Dashboard and business intelligence reporting |
-| GitHub | Version control and portfolio hosting |
 
+| Layer | Tool |
+|---|---|
+| Storage & compute | Microsoft Fabric Lakehouse (Delta tables) |
+| Transformation | Spark SQL (PySpark notebooks) |
+| SQL development | DataGrip (JetBrains) |
+| Semantic model | Direct Lake (Power BI) |
+| Visualisation | Power BI |
+| Version control | GitHub |
+
+---
+
+## Business Questions
+
+| # | Question | Chart type |
+|---|---|---|
+| BQ1 | How has monthly revenue and order volume evolved from 2016 to 2018? | Combo chart (bar + line) |
+| BQ2 | Which product categories generate the most revenue? | Horizontal bar chart |
+| BQ3 | Which sellers have the longest average delivery delay past the estimated date? | Horizontal bar chart |
+| BQ4 | Does delivering ahead of the estimated date drive higher customer ratings? | Clustered bar chart |
+| BQ5 | How concentrated is revenue across sellers? | Pareto chart (bar + cumulative line) |
+
+---
 
 ## Key Findings
 
-1. **Revenue Trend** : Olist showed consistent month-on-month growth from late 2016 through 2018, with order volume growing from under 1,000 to over 7,000 orders per month.
-2. **Category Performance** : Health & beauty was the top revenue category (~R$1.26M), followed closely by watches & gifts and bed/bath/table. Revenue is distributed across categories with no single dominant vertical.
-3. **Seller Delivery Performance** : Significant variation exists across sellers. The worst performer averaged 167 days late; the best averaged 66 days early.
-4. **Satisfaction Driver** : A consistent pattern exists between delivery timing and review scores. Orders rated 5 stars arrived an average of 13 days before the estimated date; 1-star orders arrived only 4 days early.
-5. **Pareto Analysis** : 533 sellers (17.2% of the total 3,095) drive 80% of total revenue: closely consistent with the classic 80/20 Pareto principle.
+- **R$13.22M** total revenue across **99,441** delivered orders from **2,970** active sellers
+- Revenue grew consistently from late 2016, peaking in **November 2017**, with sustained high volumes through mid-2018
+- **Health & Beauty** is the top revenue category (~R$1.26M), followed by Watches & Gifts and Bed, Bath & Table — revenue is distributed across categories with no single dominant vertical
+- **Delivery performance varies significantly** across sellers — the worst performer averaged over 167 days past the estimated delivery date, flagging a clear operational issue
+- **Exceeding delivery expectations drives satisfaction**: 5-star orders arrived on average 13 days before the estimated date, vs only 4 days early for 1-star orders — customers rate based on expectations, not just absolute speed
+- **533 sellers (17.2% of 3,095)** drive 80% of total revenue — closely consistent with the Pareto principle
+- Average customer review score: **4.09 / 5.00**
 
+---
 
-## SQL Queries
+## Gold Layer Tables
 
-All queries are in the `/queries` folder, organised by business question:
+| Table | Description | Rows |
+|---|---|---|
+| `gold_monthly_revenue` | Revenue and order count by year-month | 29 |
+| `gold_category_performance` | Total revenue per product category (delivered orders only) | 71 |
+| `gold_delivery_performance` | Average delivery delay per seller, sorted by worst performers | 2,970 |
+| `gold_satisfaction_driver` | Average days early vs estimated, grouped by review score | 5 |
+| `gold_pareto_analysis` | Revenue per seller with cumulative percentage | 2,970 |
+| `gold_avg_review` | Weighted average review score across all orders | 1 |
 
-- `01_exploration.sql` : Schema exploration and row counts across all 9 tables
-- `02_revenue_trend.sql` : Monthly revenue and order volume trend
-- `03_category_performance.sql` : Revenue by product category
-- `04_delivery_performance.sql` : Seller delivery performance ranking
-- `05_satisfaction_driver.sql` : Delivery delay versus review score correlation
-- `06_pareto_analysis.sql` : Cumulative revenue share by seller (Pareto analysis)
+---
+
+## Data Validation
+
+All Gold tables were validated before dashboard publication:
+
+- Revenue totals cross-checked across `gold_monthly_revenue`, `gold_category_performance`, and `gold_pareto_analysis` — consistent at **R$13.22M**
+- `gold_category_performance` excludes ~1.3% of revenue from products without an English category mapping (expected data quality gap in source data, documented)
+- `gold_avg_review` calculated as a true weighted average from `silver_reviews` — not the arithmetic mean of scores 1–5
+- Pareto cumulative percentage confirmed to reach 100% at final seller
+
+Validation queries: [`queries/validation_checks.sql`](queries/validation_checks.sql)
+
+---
+
+## Repository Structure
+
+```
+├── notebooks/
+│   ├── bronze_layer.ipynb          # Raw CSV ingestion to Delta tables
+│   ├── silver_layer.ipynb          # Cleaning, typing, filtering
+│   └── gold_layer.ipynb            # Aggregations → business-ready tables
+├── queries/
+│   ├── 01_exploration.sql          # Schema exploration and row counts
+│   ├── 02_revenue_trend.sql        # BQ1 — Monthly revenue trend
+│   ├── 03_category_performance.sql # BQ2 — Category revenue
+│   ├── 04_delivery_performance.sql # BQ3 — Seller delivery delays
+│   ├── 05_satisfaction_driver.sql  # BQ4 — Delivery vs review score
+│   ├── 06_pareto_analysis.sql      # BQ5 — Seller revenue concentration
+│   ├── gold_avg_review.sql         # Weighted average review score
+│   └── validation_checks.sql       # Cross-table data validation
+└── README.md
+```
+
+---
+
+## Skills Demonstrated
+
+`SQL` · `Spark SQL` · `Microsoft Fabric` · `Delta Lake` · `Medallion Architecture` · `Power BI` · `Direct Lake` · `Data Modelling` · `Data Validation` · `ETL Pipeline Design`
