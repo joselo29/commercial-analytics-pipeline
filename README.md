@@ -141,4 +141,4 @@ Validation queries: [`queries/validation_checks.sql`](queries/validation_checks.
 
 ## Skills Demonstrated
 
-`SQL` · `Spark SQL` · `Microsoft Fabric` · `Delta Lake` · `Medallion Architecture` · `Power BI` · `Direct Lake` · `Data Modelling` · `Data Validation` · `ETL Pipeline Design`
+`SQL` · `Spark SQL` · `Microsoft Fabric` · `Delta Lake` · `Medallion Architecture` · `Power BI` · `Direct Lake` · `Data Modelling` · `DataGrip`· `Data Validation` · `ETL Pipeline Design`
