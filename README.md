@@ -55,6 +55,23 @@ Each layer is materialised as Delta tables in the Fabric Lakehouse, with transfo
 
 ---
 
+## Schema — Entity Relationship Diagram
+
+```mermaid
+erDiagram
+    olist_orders ||--o{ olist_order_items : "order_id"
+    olist_orders ||--o{ olist_order_payments : "order_id"
+    olist_orders ||--o{ olist_order_reviews : "order_id"
+    olist_customers ||--o{ olist_orders : "customer_id"
+    olist_sellers ||--o{ olist_order_items : "seller_id"
+    olist_products ||--o{ olist_order_items : "product_id"
+    olist_geolocation ||--o{ olist_customers : "zip_code_prefix"
+    olist_geolocation ||--o{ olist_sellers : "zip_code_prefix"
+    product_category_name_translation ||--o{ olist_products : "category_name"
+```
+
+---
+
 ## Tech Stack
 
 | Layer | Tool |
@@ -136,6 +153,23 @@ Validation queries: [`queries/validation_checks.sql`](queries/validation_checks.
 │   └── validation_checks.sql       # Cross-table data validation
 └── README.md
 ```
+
+---
+
+## How to Run
+
+You can replicate this project in Microsoft Fabric.
+
+1. **Get the data.** Download the [Olist Brazilian E-Commerce dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) from Kaggle. It contains 9 CSV files.
+
+2. **Set up Fabric.** Create a Workspace and a Lakehouse in Microsoft Fabric, then upload the 9 CSV files to the Lakehouse Files area.
+
+3. **Run the notebooks in order.** Import the three notebooks from `notebooks/` and run each one top to bottom:
+   - `bronze_layer.ipynb` reads the raw CSVs into Delta tables.
+   - `silver_layer.ipynb` cleans, types, and joins the data, and filters to delivered orders.
+   - `gold_layer.ipynb` builds the aggregated, business-ready tables.
+
+4. **Connect Power BI.** Create a Direct Lake semantic model on the Gold tables and build the report. Direct Lake reads the Delta tables in place, so there is no data import or refresh step.
 
 ---
 
