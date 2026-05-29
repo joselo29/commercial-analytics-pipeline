@@ -1,5 +1,8 @@
 -- Data validation checks
 -- Run these to verify gold layer integrity
+--These checks exist so the gold tables are confirmed before the dashboard is published, rather than trusting the transformations blindly.
+--Revenue is summed across three independent gold tables so any mismatch points to a join or filter error in one of them.
+--Expected values are written inline next to each count so actual output can be compared against known-good numbers at a glance.
 
 -- Cross-check: total revenue should match across tables
 SELECT SUM(total_revenue) FROM gold_monthly_revenue;

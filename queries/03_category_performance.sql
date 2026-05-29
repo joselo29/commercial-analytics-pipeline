@@ -1,5 +1,8 @@
 -- Gold layer: revenue by product category
 -- Business Question 2
+--CREATE OR REPLACE TABLE materialises this as a gold aggregate so Power BI reads a ready table instead of recomputing the joins at query time.
+--The join to silver_category_translation returns English category names, since the source category column is in Portuguese.
+--This builds on silver tables that are already cleaned and filtered to delivered orders, so the delivered filter is not repeated here.
 CREATE OR REPLACE TABLE gold_category_performance AS
 SELECT
     ct.product_category_name_english,
